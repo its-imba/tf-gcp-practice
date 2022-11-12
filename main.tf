@@ -58,21 +58,43 @@ resource "google_compute_instance" "dev" {
     }
   }
 
-  provisioner "remote-exec" {
+  # Copy in the bash script we want to execute.
+  # The source is the location of the bash script
+  # on the local linux box you are executing terraform
+  # from.  The destination is on the new AWS instance.
+  provisioner "file" {
+    source      = "/Users/samhiscox/tf-linux-gcp/docker-install.sh"
+    destination = "/tmp/docker-install.sh"
+
     connection {
-      host        = google_compute_address.static.address
-      type        = "ssh"
-      user        = var.user
-      timeout     = "500s"
-      private_key = file(var.privatekeypath)
-    }
+     host        = google_compute_address.static.address
+     type        = "ssh"
+     # username of the instance would vary for each account refer the OS Login in GCP documentation
+     user        = var.user 
+     timeout     = "500s"
+     # private_key being used to connect to the VM. ( the public key was copied earlier using metadata )
+     private_key = file(var.privatekeypath)
+   }
+  }
+  # Change permissions on bash script and execute from ec2-user.
+  provisioner "remote-exec" {
+
+    connection {
+     host        = google_compute_address.static.address
+     type        = "ssh"
+     # username of the instance would vary for each account refer the OS Login in GCP documentation
+     user        = var.user 
+     timeout     = "500s"
+     # private_key being used to connect to the VM. ( the public key was copied earlier using metadata )
+     private_key = file(var.privatekeypath)
+   }
 
     inline = [
-      "sudo yum -y install epel-release",
-      "sudo yum -y install nginx",
-      "sudo nginx -v",
+      "chmod +x /tmp/docker-install.sh",
+      "sudo /tmp/docker-install.sh",
     ]
   }
+
 
   # Ensure firewall rule is provisioned before server, so that SSH doesn't fail.
   depends_on = [ google_compute_firewall.firewall, google_compute_firewall.webserverrule ]
@@ -85,55 +107,5 @@ resource "google_compute_instance" "dev" {
   metadata = {
     ssh-keys = "${var.user}:${file(var.publickeypath)}"
   }
+
 }
-
-provisioner "file" {
-   
-   # source file name on the local machine where you execute terraform plan and apply
-   source      = "docker-install.sh"
-
-   # destination is the file location on the newly created instance
-   destination = "/tmp/docker-install.sh"
-
-   connection {
-     host        = google_compute_address.static.address
-     type        = "ssh"
-     # username of the instance would vary for each account refer the OS Login in GCP documentation
-     user        = var.user 
-     timeout     = "500s"
-     # private_key being used to connect to the VM. ( the public key was copied earlier using metadata )
-     private_key = file(var.privatekeypath)
-   }
-
-   # Commands to be executed as the instance gets ready.
-   # installing nginx
-   inline = [
-     "chmod a+x /tmp/startupscript.sh",
-     "sed -i -e 's/\r$//' /tmp/startupscript.sh",
-     "sudo /tmp/startupscript.sh"
-   ]
- }
-
-
-
- # to connect to the instance after the creation and execute few commands for provisioning
- # here you can execute a custom Shell script or Ansible playbook
- provisioner "remote-exec" {
-   connection {
-     host        = google_compute_address.static.address
-     type        = "ssh"
-     # username of the instance would vary for each account refer the OS Login in GCP documentation
-     user        = var.user 
-     timeout     = "500s"
-     # private_key being used to connect to the VM. ( the public key was copied earlier using metadata )
-     private_key = file(var.privatekeypath)
-   }
-
-   # Commands to be executed as the instance gets ready.
-   # set execution permission and start the script
-   inline = [
-     "chmod a+x /tmp/docker-install.sh",
-     "sed -i -e 's/\r$//' /tmp/docker-install.sh",
-     "sudo /tmp/docker-install.sh"
-   ]
- }
