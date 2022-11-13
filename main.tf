@@ -4,7 +4,7 @@ provider "google" {
 }
 
 resource "google_compute_firewall" "firewall" {
-  name    = "gritfy-firewall-externalssh"
+  name    = "firewall-externalssh"
   network = "default"
 
   allow {
@@ -17,7 +17,7 @@ resource "google_compute_firewall" "firewall" {
 }
 
 resource "google_compute_firewall" "webserverrule" {
-  name    = "gritfy-webserver"
+  name    = "webserver1"
   network = "default"
 
   allow {
@@ -63,8 +63,8 @@ resource "google_compute_instance" "dev" {
   # on the local linux box you are executing terraform
   # from.  The destination is on the new AWS instance.
   provisioner "file" {
-    source      = "/Users/samhiscox/tf-linux-gcp/docker-install.sh"
-    destination = "/tmp/docker-install.sh"
+    source      = "/Users/samhiscox/tf-linux-gcp/software-installer.sh"
+    destination = "/tmp/software-installer.sh"
 
     connection {
      host        = google_compute_address.static.address
@@ -90,8 +90,8 @@ resource "google_compute_instance" "dev" {
    }
 
     inline = [
-      "chmod +x /tmp/docker-install.sh",
-      "sudo /tmp/docker-install.sh",
+      "chmod +x /tmp/software-installer.sh",
+      "sudo /tmp/software-installer.sh",
     ]
   }
 
