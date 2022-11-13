@@ -22,7 +22,7 @@ resource "google_compute_firewall" "webserverrule" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80","443"]
+    ports    = ["80","443, 8080"]
   }
 
   source_ranges = ["0.0.0.0/0"] # Not So Secure. Limit the Source Range
@@ -40,13 +40,13 @@ resource "google_compute_address" "static" {
 
 resource "google_compute_instance" "dev" {
   name         = "devserver"
-  machine_type = "f1-micro"
+  machine_type = "e2-medium"
   zone         = "${var.region}-a"
   tags         = ["externalssh","webserver"]
 
   boot_disk {
     initialize_params {
-      image = "centos-cloud/centos-7"
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
     }
   }
 
