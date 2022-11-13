@@ -54,8 +54,10 @@ done
 echo "initial admin password: \$(cat .jenkins/secrets/initialAdminPassword)"
 EOF
 
+sudo usermod -aG jenkins $(whoami)
+
 # Install nano
 
 sudo apt-get update
 
-yum install nano
+sudo apt install nano

@@ -22,7 +22,7 @@ resource "google_compute_firewall" "webserverrule" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80","443, 8080"]
+    ports    = ["80","443", "8080"]
   }
 
   source_ranges = ["0.0.0.0/0"] # Not So Secure. Limit the Source Range
