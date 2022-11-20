@@ -4,7 +4,7 @@
 sudo apt-get update
 sudo apt install curl -y
 curl https://get.docker.com | sudo bash
-sudo usermod -aG docker $(whoami)
+sudo usermod -aG sudo docker
 
 # Install jenkins and add jenkins user with permissions
 
@@ -54,10 +54,8 @@ done
 echo "initial admin password: \$(cat .jenkins/secrets/initialAdminPassword)"
 EOF
 
-sudo usermod -aG jenkins $(whoami)
+sudo usermod -aG sudo jenkins
 
-# Install nano
-
-sudo apt-get update
-
-sudo apt install nano
+#add docker and jenkins to sudoers
+sudo sh -c "echo \"docker   ALL=(ALL:ALL) NOPASSWD: ALL\" >> /etc/sudoers"
+sudo sh -c "echo \"jenkins   ALL=(ALL:ALL) NOPASSWD: ALL\" >> /etc/sudoers"

@@ -1,9 +1,13 @@
 variable "region" {
-    type = string
-    default = "us-central"
+    default = "europe-west2"
 }
+
+variable "zone" {
+    default = "europe-west2-a"
+}
+
 variable "project" {
-    type = string
+    default = "devserver"
 }
 
 variable "user" {

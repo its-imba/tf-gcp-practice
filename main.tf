@@ -1,6 +1,7 @@
 provider "google" {
   project = var.project
   region  = var.region
+  zone    = var.zone
 }
 
 resource "google_compute_firewall" "firewall" {
@@ -43,7 +44,7 @@ resource "google_compute_firewall" "allow-https" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["8080","5000"]
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -53,7 +54,7 @@ resource "google_compute_firewall" "allow-https" {
 
 resource "google_compute_instance" "dev" {
   name         = "devserver"
-  machine_type = "e2-medium"
+  machine_type = "n2d-highcpu-8"
   zone         = "${var.region}-a"
   tags         = ["externalssh","webserver","https-server"]
 
