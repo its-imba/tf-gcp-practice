@@ -22,7 +22,7 @@ resource "google_compute_firewall" "webserverrule" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80","443", "8080"]
+    ports    = ["80","443"]
   }
 
   source_ranges = ["0.0.0.0/0"] # Not So Secure. Limit the Source Range
@@ -37,18 +37,33 @@ resource "google_compute_address" "static" {
   depends_on = [ google_compute_firewall.firewall ]
 }
 
+resource "google_compute_firewall" "allow-https" {
+  name    = "jenky"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["https-server"]
+}
+
 
 resource "google_compute_instance" "dev" {
   name         = "devserver"
   machine_type = "e2-medium"
   zone         = "${var.region}-a"
-  tags         = ["externalssh","webserver"]
+  tags         = ["externalssh","webserver","https-server"]
 
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2204-lts"
     }
   }
+
+  
 
   network_interface {
     network = "default"
