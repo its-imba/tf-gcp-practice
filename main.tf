@@ -64,7 +64,17 @@ resource "google_compute_instance" "dev" {
     }
   }
 
-  
+  resource "google_compute_instance" "dev2" {
+  name         = "devserver2"
+  machine_type = "n2d-highcpu-8"
+  zone         = "${var.region}-a"
+  tags         = ["externalssh","webserver","https-server"]
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+    }
+  }
 
   network_interface {
     network = "default"
